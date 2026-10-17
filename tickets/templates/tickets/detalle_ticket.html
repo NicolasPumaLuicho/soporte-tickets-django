@@ -1,0 +1,43 @@
+{% extends "tickets/base.html" %}
+
+{% block titulo %}{{ ticket.titulo }} — Soporte{% endblock %}
+
+{% block contenido %}
+<div class="tarjeta">
+    <h2>
+        {{ ticket.titulo }}
+        <span class="chip">{{ ticket.get_estado_display }}</span>
+    </h2>
+    <p>{{ ticket.descripcion }}</p>
+
+    {% if comentario %}
+    <div class="comentario">
+        <p class="autor">{{ comentario.autor }}</p>
+        <p class="fecha">{{ comentario.fecha|date:"d/m/Y H:i" }}</p>
+        <p>{{ comentario.texto }}</p>
+    </div>
+
+    <div class="navegacion">
+        {% if hay_anterior %}
+        <a class="boton boton-primario"
+           href="{% url 'tickets:detalle' ticket.id %}?pos={{ posicion|add:'-1' }}">&laquo; Anterior</a>
+        {% else %}
+        <span class="boton boton-deshabilitado">&laquo; Anterior</span>
+        {% endif %}
+
+        {% if hay_siguiente %}
+        <a class="boton boton-primario"
+           href="{% url 'tickets:detalle' ticket.id %}?pos={{ posicion|add:'1' }}">Siguiente &raquo;</a>
+        {% else %}
+        <span class="boton boton-deshabilitado">Siguiente &raquo;</span>
+        {% endif %}
+
+        <span class="contador">Comentario {{ posicion }} de {{ total }}</span>
+    </div>
+    {% else %}
+    <p>Este ticket todavía no tiene comentarios.</p>
+    {% endif %}
+
+    <a class="volver" href="{% url 'tickets:lista' %}">&larr; Volver a la lista de tickets</a>
+</div>
+{% endblock %}

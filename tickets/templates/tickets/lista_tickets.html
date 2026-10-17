@@ -1,0 +1,27 @@
+{% extends "tickets/base.html" %}
+
+{% block titulo %}Tickets — Soporte{% endblock %}
+
+{% block contenido %}
+<div class="tarjeta">
+    <h2>Tickets registrados</h2>
+    <table>
+        <tr>
+            <th>Ticket</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Comentarios</th>
+        </tr>
+        {% for ticket in tickets %}
+        <tr>
+            <td><a href="{% url 'tickets:detalle' ticket.id %}">{{ ticket.titulo }}</a></td>
+            <td>{{ ticket.get_estado_display }}</td>
+            <td>{{ ticket.fecha|date:"d/m/Y H:i" }}</td>
+            <td>{{ ticket.comentarios.count }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Todavía no hay tickets registrados.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

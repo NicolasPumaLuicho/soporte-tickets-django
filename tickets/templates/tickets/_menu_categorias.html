@@ -1,0 +1,8 @@
+{% load menu_tags %}
+<nav class="menu-categorias">
+  <ul>
+    {% for nodo in menu_categorias.hijos %}
+      {% nodo_menu nodo %}
+    {% endfor %}
+  </ul>
+</nav>

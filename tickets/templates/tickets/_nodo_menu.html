@@ -1,0 +1,10 @@
+{% load menu_tags %}
+<li>{{ nodo.nombre }}
+  {% if nodo.hijos %}
+    <ul>
+      {% for hijo in nodo.hijos %}
+        {% nodo_menu hijo %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+</li>
