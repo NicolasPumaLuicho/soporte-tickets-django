@@ -65,15 +65,9 @@ descendiente de la propia categoría.
 
 ### Commit de la Semana 9
 
-Pendiente de subir al repositorio del equipo:
+Enlace del commit: https://github.com/NIckKIng6969/soporte-tickets-django/commit/53f38ec15d35c71909c65532af6b72c8cede5214
 
-```bash
-git add .
-git commit -m "S09: menú de categorías con árbol genérico"
-git push
-```
-
-Enlace del commit: _(pegar aquí después del push)_
+Repositorio: https://github.com/NIckKIng6969/soporte-tickets-django
 
 ---
 
