@@ -1,12 +1,30 @@
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
 from .historial import historial_de
 from .models import Ticket
 
 
+@login_required
 def lista_tickets(request):
-    tickets = Ticket.objects.all()
-    return render(request, "tickets/lista_tickets.html", {"tickets": tickets})
+    es_agente = (
+        request.user.groups.filter(name="Agente").exists()
+        or request.user.is_superuser
+    )
+    if es_agente:
+        filtro = Q(estado="abierto") & (
+            Q(impacto=3) | Q(categoria__peso__gte=3)
+        )
+        tickets = list(Ticket.objects.filter(filtro))
+        tickets.sort(key=lambda t: t.prioridad(), reverse=True)
+    else:
+        tickets = Ticket.objects.filter(creado_por=request.user)
+    return render(
+        request,
+        "tickets/lista.html",
+        {"tickets": tickets, "es_agente": es_agente},
+    )
 
 
 def detalle_ticket(request, ticket_id):

@@ -1,6 +1,75 @@
 # Sistema de Gestión de Tickets de Soporte
 
-Proyecto de portafolio del curso **Estructura de Datos y Algoritmos** (semanas 8 y 9).
+Proyecto de portafolio del curso **Estructura de Datos y Algoritmos** (semanas 8, 9 y 10).
+
+## Semana 10 — Prioridad del ticket con un árbol de expresión e inicio de sesión
+
+- `Categoria` tiene el campo `peso` (1 normal, 3 crítica) y `Ticket` tiene
+  `creado`, `impacto`, `categoria` y `creado_por`. Migración `0003` aplicada.
+- `tickets/estructuras/arbol_expresion.py` contiene `NodoExpresion`,
+  `construir_postfija` y `evaluar_con_variables`. La fórmula se guarda en
+  postfija (`"impacto peso * dias +"`) y el árbol la calcula con el diccionario
+  de valores; no se usa `eval()`.
+- `Ticket.prioridad()` arma el árbol con `FORMULA_PRIORIDAD` y lo evalúa con
+  `evaluar_con_variables(arbol, valores)`.
+- Inicio y cierre de sesión con `django.contrib.auth` en `/cuentas/` y la
+  plantilla `registration/login.html`.
+- Grupos `Cliente` y `Agente`. El agente ve los tickets abiertos urgentes
+  (filtro `Q(estado="abierto") & (Q(impacto=3) | Q(categoria__peso__gte=3))`)
+  ordenados por prioridad; el cliente solo ve los tickets que creó.
+- `@login_required` manda al login a quien no inició sesión.
+
+### Cómo ejecutar
+
+```bash
+pip install django
+python manage.py migrate
+python manage.py cargar_datos_s08        # ticket de prueba con 5 comentarios
+python manage.py cargar_categorias_s09   # categorías de ejemplo (3 niveles)
+python manage.py cargar_datos_s10        # categorías con peso, usuarios y tickets de prueba
+python manage.py runserver
+```
+
+- Lista de tickets: http://127.0.0.1:8000/
+- Detalle del ticket: http://127.0.0.1:8000/ticket/1/
+- Login: http://127.0.0.1:8000/cuentas/login/
+- Admin: http://127.0.0.1:8000/admin/ (usuario `admin` / contraseña `soporte2026`, solo para desarrollo local)
+- Usuarios de prueba: `nicolas` (Cliente), `carla` (Cliente), `agente` (Agente).
+  Contraseñas de desarrollo: `cliente2026` y `agente2026`.
+
+### Evidencias de la Semana 10
+
+En `evidencias/`:
+
+- `01_login.png` — formulario de ingreso en `/cuentas/login/`.
+- `03_lista_cliente.png` — el cliente `nicolas` ve solo sus tickets.
+- `04_lista_agente.png` — el agente ve los tickets urgentes ordenados por prioridad.
+- `05_shell_prioridades.png` — `prioridad()` ejecutado en `python manage.py shell`.
+- `06_migracion.png` — migración `0003` aplicada y sin cambios pendientes.
+
+### Preguntas de la guía de la Semana 10
+
+**a) En el filtro con `Q()` del paso 2, ¿cuáles son las hojas y cuáles los nodos internos?**
+
+R: Las hojas son cada condición: `Q(estado="abierto")`, `Q(impacto=3)` y
+`Q(categoria__peso__gte=3)`. Los nodos internos son los conectores: el `OR`
+une las dos últimas condiciones y el `AND` es la raíz que une `estado="abierto"`
+con ese `OR`.
+
+**b) ¿Por qué conviene guardar la fórmula de prioridad en postfija y no en infija?**
+
+R: Porque en postfija no hacen falta paréntesis ni reglas de precedencia: el
+árbol se arma con una pila leyendo los tokens en orden, y cada operador toma
+los dos últimos operandos. Además, si cambia la regla de negocio solo se
+modifica el texto de la fórmula, sin tocar el código que la evalúa.
+
+### Commit de la Semana 10
+
+Enlace del commit: COMMIT_S10_URL
+
+Repositorio: https://github.com/NicolasPumaLuicho/soporte-tickets-django
+
+---
 
 ## Semana 9 — Menú de categorías con un árbol genérico
 
