@@ -65,7 +65,7 @@ modifica el texto de la fórmula, sin tocar el código que la evalúa.
 
 ### Commit de la Semana 10
 
-Enlace del commit: COMMIT_S10_URL
+Enlace del commit: https://github.com/NicolasPumaLuicho/soporte-tickets-django/commit/72800def90a6aabe5b0aa041647f2f14d4772cc4
 
 Repositorio: https://github.com/NicolasPumaLuicho/soporte-tickets-django
 
