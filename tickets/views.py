@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
+from django.views.generic import ListView
 
 from .historial import historial_de
 from .models import Ticket
@@ -25,6 +27,14 @@ def lista_tickets(request):
         "tickets/lista.html",
         {"tickets": tickets, "es_agente": es_agente},
     )
+
+
+class TicketListView(LoginRequiredMixin, ListView):
+    model = Ticket
+    template_name = "tickets/todos.html"
+    context_object_name = "tickets"
+    paginate_by = 5
+    ordering = ["-creado"]
 
 
 def detalle_ticket(request, ticket_id):

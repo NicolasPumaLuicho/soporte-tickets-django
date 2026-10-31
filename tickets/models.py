@@ -51,6 +51,11 @@ class Ticket(models.Model):
 
 
 
+class CodigoPrueba(models.Model):
+    sin_indice = models.IntegerField()
+    con_indice = models.IntegerField(db_index=True)
+
+
 class Comentario(models.Model):
     ticket = models.ForeignKey(
         Ticket,

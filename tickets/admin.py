@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Categoria, Comentario, Ticket
+from .models import Categoria, CodigoPrueba, Comentario, Ticket
 
 
 class ComentarioInline(admin.TabularInline):
@@ -25,3 +25,8 @@ class ComentarioAdmin(admin.ModelAdmin):
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ("nombre", "peso", "padre")
     search_fields = ("nombre",)
+
+
+@admin.register(CodigoPrueba)
+class CodigoPruebaAdmin(admin.ModelAdmin):
+    list_display = ("sin_indice", "con_indice")

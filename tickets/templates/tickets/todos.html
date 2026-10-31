@@ -1,0 +1,17 @@
+<h1>Todos los tickets</h1>
+<ul>
+  {% for t in tickets %}
+    <li>#{{ t.id }} · {{ t.titulo }} · {{ t.get_impacto_display }}</li>
+  {% empty %}
+    <li>No hay tickets.</li>
+  {% endfor %}
+</ul>
+<p>
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">« Anterior</a>
+  {% endif %}
+  Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Siguiente »</a>
+  {% endif %}
+</p>

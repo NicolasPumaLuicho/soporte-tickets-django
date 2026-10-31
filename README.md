@@ -1,6 +1,58 @@
 # Sistema de Gestión de Tickets de Soporte
 
-Proyecto de portafolio del curso **Estructura de Datos y Algoritmos** (semanas 8, 9 y 10).
+Proyecto de portafolio del curso **Estructura de Datos y Algoritmos** (semanas 8 a 11).
+
+## Semana 11 — Índice BST de tickets, db_index y lista paginada
+
+- `tickets/estructuras/arbol_bst.py` contiene `NodoBST`, `insertar`,
+  `buscar_con_pasos`, `altura` y la función propia `construir_indice`. Esta
+  recibe los tickets, forma parejas `(id, titulo)` y las inserta en un árbol
+  binario de búsqueda; si `mezclar=True`, primero usa `random.shuffle`.
+- Sin mezclar, los ids llegan en orden y el árbol queda degenerado: con 12
+  tickets su altura es 12. Al mezclar, la altura baja porque las ramas se
+  reparten.
+- `CodigoPrueba` tiene dos columnas con los mismos números: `sin_indice` y
+  `con_indice` (`db_index=True`). La migración `0004_codigoprueba` está aplicada.
+- `tickets/estructuras/medir.py` carga 100 000 filas y compara el plan de
+  SQLite al buscar el mismo código en ambas columnas.
+- `TicketListView` usa `LoginRequiredMixin`, `ListView`, `paginate_by = 5` y
+  ordena por `-creado`. La ruta es `/tickets/todos/` y la plantilla es
+  `tickets/todos.html`.
+
+### Evidencias de la Semana 11
+
+En `evidencias/`:
+
+- `08_indice_bst.png` — altura con y sin mezcla, y pasos para encontrar un ticket.
+- `09_migracion_codigoprueba.png` — migración `0004` aplicada, sin cambios pendientes.
+- `10_medir_indices.png` — `SCAN` sin índice y `SEARCH ... USING INDEX` con índice.
+- `11_lista_pagina1.png` — primera página de cinco tickets.
+- `12_lista_pagina2.png` — segunda página, con los enlaces Anterior y Siguiente.
+
+### Preguntas de la guía de la Semana 11
+
+**a) ¿Por qué su índice quedó con una altura igual a la cantidad de tickets cuando no los mezclaron?**
+
+R: Porque los tickets salieron ordenados por id y cada id nuevo era mayor que
+el anterior, así que siempre se insertó por la derecha. Cada nodo quedó con un
+solo hijo y el árbol terminó siendo una fila: con 12 tickets, la altura fue 12.
+Al mezclar, los ids llegaron en desorden, las ramas se repartieron y la altura
+bajó.
+
+**b) En la salida de explain(), ¿qué significa SCAN y qué significa SEARCH USING INDEX?**
+
+R: `SCAN` significa que SQLite recorrió toda la tabla fila por fila porque la
+columna sin índice no tiene una estructura que le permita descartar valores.
+`SEARCH ... USING INDEX` significa que usó el índice de `con_indice` para bajar
+por el árbol B y encontrar el valor sin revisar las 100 000 filas.
+
+### Commit de la Semana 11
+
+Enlace del commit: pendiente al crear el commit.
+
+Repositorio: https://github.com/NicolasPumaLuicho/soporte-tickets-django
+
+---
 
 ## Semana 10 — Prioridad del ticket con un árbol de expresión e inicio de sesión
 
