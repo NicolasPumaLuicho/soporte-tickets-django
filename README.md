@@ -1,6 +1,6 @@
 # Sistema de Gestión de Tickets de Soporte
 
-Proyecto de portafolio del curso **Estructura de Datos y Algoritmos** (semanas 8 a 11).
+Proyecto de portafolio del curso **Estructura de Datos y Algoritmos** (semanas 8 a 12).
 
 ## Semana 11 — Índice BST de tickets, db_index y lista paginada
 
@@ -219,6 +219,50 @@ R: El método que inserta al final de la lista (`agregar_al_final()`). Como
 conserva los enlaces de todos los nodos y solo engancha el nodo nuevo después
 de la cola, el puntero actual se queda donde estaba: el agente sigue leyendo
 el comentario 3 y el comentario nuevo queda disponible al final del historial.
+
+## Semana 12 — Índice balanceado y pruebas unitarias
+
+- `tickets/estructuras/arbol_bst.py` ahora tiene también `a_lista`,
+  `construir_balanceado`, `construir_indice_balanceado` y `contar_pasos`.
+  `construir_indice_balanceado` forma las parejas `(id, titulo)`, las ordena
+  con `sort()` y arma el árbol tomando como raíz el elemento del medio.
+  `contar_pasos` hace lo mismo que `buscar_con_pasos`, pero sin imprimir nada.
+- Comparación en el shell con los 12 tickets de la base: sin mezclar el árbol
+  queda en fila (12 niveles y 12 pasos para llegar al último ticket);
+  balanceado baja a 4 niveles y 3 pasos.
+- `tickets/tests.py` tiene las 4 pruebas de la guía y la clase `BusquedaTest`
+  con `test_busqueda_rapida`. `python manage.py test tickets` termina en `OK`
+  con 5 pruebas.
+- Si se cambia `medio = len(datos) // 2` por `medio = 0` fallan 2 pruebas (la
+  de la altura y la de la búsqueda); al devolver la línea, vuelven a pasar.
+
+### Evidencias de la Semana 12
+
+En `evidencias/`:
+
+- `13_shell_indice_balanceado.png` — los dos índices comparados en el shell.
+- `14_pruebas_ok.png` — `manage.py test tickets` con las 5 pruebas en OK.
+- `15_pruebas_fail.png` — el FAIL provocado con `medio = 0`.
+
+### Preguntas de la guía de la Semana 12
+
+**a) ¿Por qué con medio = 0 falló la prueba de la altura?**
+
+R: Porque con `medio = 0` la función siempre agarra `datos[0]` como raíz, que
+es el id más chico. Todos los demás elementos van a `datos[1:]`, o sea, al lado
+derecho, y en cada llamada pasa lo mismo. El árbol termina siendo una fila de
+100 nodos y su altura es 100, cuando la prueba pide 7 como máximo. La prueba
+de la búsqueda también falla por lo mismo: encontrar el ticket 100 revisa los
+100 nodos.
+
+**b) ¿Para qué sirve tener pruebas unitarias si el programa ya funciona hoy?**
+
+R: Sirven para darse cuenta al instante si algo se rompe cuando alguien cambia
+el código. Si no hubiera pruebas, el error de `medio = 0` pasaría paseando: la
+página seguiría cargando, pero el índice volvería a ser una fila y las
+búsquedas serían lentas. Con las pruebas, un solo comando revisa en segundos
+que la altura, el orden y la búsqueda sigan bien, sin tener que abrir el
+navegador y probar a mano.
 
 ## Integrantes
 
