@@ -264,6 +264,40 @@ búsquedas serían lentas. Con las pruebas, un solo comando revisa en segundos
 que la altura, el orden y la búsqueda sigan bien, sin tener que abrir el
 navegador y probar a mano.
 
+## Semana 13 — Cola de prioridad con heap y API de urgentes
+
+- `tickets/estructuras/cola_prioridad.py` contiene `MinHeap`, `cola_urgentes` y
+  `primeros`. Cada ticket abierto se guarda como `(-prioridad, id, titulo)` para
+  que el de mayor prioridad salga primero y, si hay empate, gane el id más bajo.
+- `tickets/api.py` define `UrgentesAPI`. La ruta `/api/tickets/urgentes/?n=3`
+  devuelve los tres tickets abiertos más urgentes en JSON y exige iniciar sesión.
+- Sin sesión, la API responde 403 y exige credenciales de autenticación.
+- `tickets/tests.py` suma cuatro pruebas de la cola y una de acceso a la API.
+  `python manage.py test tickets` ejecuta 10 pruebas y termina en `OK`.
+
+### Evidencias de la Semana 13
+
+En `evidencias/`:
+
+- `16_shell_cola_prioridad.png` — prueba de la cola en el shell de Django.
+- `17_api_urgentes.png` — respuesta JSON con el usuario agente autenticado.
+- `18_api_403.png` — respuesta 403 al consultar sin iniciar sesión.
+- `19_pruebas_ok.png` — las 10 pruebas terminando en `OK`.
+
+### Preguntas de la guía de la Semana 13
+
+**a) ¿Por qué guardan -prioridad, y no prioridad, en un min-heap?**
+
+R: Porque el min-heap pone arriba el número más chico. Al guardar la prioridad
+10 como -10, esa queda por debajo de -4 o -1 y sale primero. Así atendemos de
+mayor a menor prioridad sin cambiar el funcionamiento del min-heap.
+
+**b) ¿Qué diferencia hay entre la página de lista de tickets y la API de urgentes?**
+
+R: La lista muestra una página HTML para que la vea una persona y tiene sus
+enlaces y botones. La API no muestra esa página: devuelve solamente los tickets
+urgentes en JSON, ya ordenados por el heap, para que los use otro programa.
+
 ## Integrantes
 
 - Nicolás Puma Luicho
