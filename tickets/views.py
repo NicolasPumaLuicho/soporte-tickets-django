@@ -4,8 +4,9 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView
 
+from .estructuras.red import red_de_areas
 from .historial import historial_de
-from .models import Ticket
+from .models import Area, Ticket
 
 
 @login_required
@@ -60,3 +61,24 @@ def detalle_ticket(request, ticket_id):
         "hay_siguiente": posicion < total,  # equivalente a has_next()
     }
     return render(request, "tickets/detalle_ticket.html", contexto)
+
+
+@login_required
+def red_areas(request):
+    areas = Area.objects.order_by("nombre")
+    red = red_de_areas(areas)
+    filas = []
+    for i, nombre in enumerate(red.nombres):
+        filas.append(
+            {
+                "nombre": nombre,
+                "valores": red.matriz[i],
+                "salen": red.grado(nombre),
+                "llegan": red.grado_entrada(nombre),
+            }
+        )
+    return render(
+        request,
+        "tickets/red_areas.html",
+        {"nombres": red.nombres, "filas": filas},
+    )

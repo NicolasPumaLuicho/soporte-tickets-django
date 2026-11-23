@@ -1,6 +1,6 @@
 # Sistema de Gestión de Tickets de Soporte
 
-Proyecto de portafolio del curso **Estructura de Datos y Algoritmos** (semanas 8 a 12).
+Proyecto de portafolio del curso **Estructura de Datos y Algoritmos** (semanas 8 a 15).
 
 ## Semana 11 — Índice BST de tickets, db_index y lista paginada
 
@@ -85,7 +85,7 @@ python manage.py runserver
 - Lista de tickets: http://127.0.0.1:8000/
 - Detalle del ticket: http://127.0.0.1:8000/ticket/1/
 - Login: http://127.0.0.1:8000/cuentas/login/
-- Admin: http://127.0.0.1:8000/admin/ (usuario `admin` / contraseña `soporte2026`, solo para desarrollo local)
+- Admin: http://127.0.0.1:8000/admin/ (usuario `admin` / contraseña `admin123`, solo para desarrollo local)
 - Usuarios de prueba: `nicolas` (Cliente), `carla` (Cliente), `agente` (Agente).
   Contraseñas de desarrollo: `cliente2026` y `agente2026`.
 
@@ -153,7 +153,7 @@ python manage.py runserver
 
 - Lista de tickets: http://127.0.0.1:8000/
 - Detalle del ticket: http://127.0.0.1:8000/ticket/1/
-- Admin: http://127.0.0.1:8000/admin/ (usuario `admin` / contraseña `soporte2026`, solo para desarrollo local)
+- Admin: http://127.0.0.1:8000/admin/ (usuario `admin` / contraseña `admin123`, solo para desarrollo local)
 
 ### Evidencias de la Semana 9
 
@@ -297,6 +297,88 @@ mayor a menor prioridad sin cambiar el funcionamiento del min-heap.
 R: La lista muestra una página HTML para que la vea una persona y tiene sus
 enlaces y botones. La API no muestra esa página: devuelve solamente los tickets
 urgentes en JSON, ya ordenados por el heap, para que los use otro programa.
+
+## Semana 15 — Red de derivación entre áreas
+
+- Modelo `Area` con `nombre` único y `deriva_a`, un
+  `ManyToManyField("self", symmetrical=False, related_name="recibe_de")`.
+  Migración `0005_area_ticket_area` aplicada.
+- `Ticket.area` es una `ForeignKey` a `Area` con `SET_NULL`: si se borra un
+  área, sus tickets quedan sin área pero no se pierden.
+- `Area` está registrada en el admin con `filter_horizontal = ("deriva_a",)`.
+- `tickets/estructuras/grafo.py` tiene la clase `Grafo` del laboratorio 15
+  (matriz de adyacencia con `vecinos`, `grado` y `grado_entrada`).
+- `tickets/estructuras/red.py` define `red_de_areas(areas)`: crea un `Grafo`
+  dirigido con los nombres de las áreas y, por cada área, agrega una arista
+  hacia cada destino de `area.deriva_a.all()`.
+- La vista `red_areas` (con `@login_required`) está en `/areas/red/` y muestra
+  la matriz junto con las columnas Salen y Llegan.
+
+### Red de derivación entre áreas
+
+```mermaid
+graph LR
+    MA[Mesa de ayuda] --> RE[Redes]
+    MA --> HW[Hardware]
+    MA --> SO[Software]
+    HW --> MA
+    RE --> SE[Seguridad]
+    SO --> SE[Seguridad]
+```
+
+Mesa de ayuda deriva a Redes, Hardware y Software, y Hardware devuelve la
+derivación a Mesa de ayuda. Redes y Software solo derivan a Seguridad, que es
+el área que no deriva a nadie.
+
+### Modelos del proyecto
+
+```mermaid
+classDiagram
+    class Area {
+        +String nombre
+        +Area[] deriva_a
+    }
+    class Ticket {
+        +String titulo
+        +String estado
+        +int impacto
+        +prioridad()
+    }
+    class User {
+        +String username
+    }
+    Area "1" --> "*" Ticket : tickets
+    User "1" --> "*" Ticket : tickets
+    Area "*" --> "*" Area : deriva_a
+```
+
+### Evidencias de la Semana 15
+
+En `evidencias/`:
+
+- `20_migracion_area.png` — `makemigrations` crea `0005_area_ticket_area`.
+- `21_shell_red_areas.png` — `red_de_areas` y la matriz en `python manage.py shell`.
+- `22_red_areas.png` — la página `/areas/red/` con la sesión iniciada.
+- `23_pruebas_ok.png` — `manage.py test tickets` con las 12 pruebas en OK.
+
+### Preguntas de la guía de la Semana 15
+
+**a) ¿Por qué `deriva_a` usa `symmetrical=False`? ¿Qué pasaría con la matriz si fuera `True`?**
+
+R: Porque una derivación va en un solo sentido: que Mesa de ayuda derive a
+Redes no significa que Redes vuelva a derivar a Mesa de ayuda. Con
+`symmetrical=False` la tabla intermedia guarda solo la pareja que se registra y
+la matriz queda dirigida, con 1 únicamente en la fila del área que deriva. Si
+fuera `True`, Django agregaría también la pareja inversa, la matriz quedaría
+simétrica y aparecerían derivaciones que nadie registró en el admin (por
+ejemplo, Seguridad aparecería derivando a Redes y a Software).
+
+**b) ¿Qué guarda cada fila de la tabla intermedia que crea el `ManyToManyField`?**
+
+R: Cada fila guarda una pareja (área de origen, área de destino): el id del
+área que deriva y el id del área que recibe, en las columnas `from_area_id` y
+`to_area_id`. Al recorrer esas filas se arma la matriz: se busca el índice del
+origen (fila) y el del destino (columna) y se coloca el 1.
 
 ## Integrantes
 

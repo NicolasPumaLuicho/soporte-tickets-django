@@ -7,6 +7,19 @@ from .estructuras.arbol_expresion import construir_postfija, evaluar_con_variabl
 FORMULA_PRIORIDAD = "impacto peso * dias +"
 
 
+class Area(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+    deriva_a = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        blank=True,
+        related_name="recibe_de",
+    )
+
+    def __str__(self):
+        return self.nombre
+
+
 class Ticket(models.Model):
     ESTADOS = [
         ("abierto", "Abierto"),
@@ -23,6 +36,13 @@ class Ticket(models.Model):
     impacto = models.PositiveSmallIntegerField(choices=IMPACTO, default=1)
     categoria = models.ForeignKey(
         "Categoria", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    area = models.ForeignKey(
+        Area,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="tickets",
     )
     creado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,

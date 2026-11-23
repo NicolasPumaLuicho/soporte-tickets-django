@@ -1,6 +1,8 @@
 from django.test import SimpleTestCase, TestCase
 from .estructuras.arbol_bst import construir_balanceado, a_lista, altura, contar_pasos
 from .estructuras.cola_prioridad import MinHeap, primeros
+from .estructuras.red import red_de_areas
+from .models import Area
 
 
 class ArbolBalanceadoTest(SimpleTestCase):
@@ -71,3 +73,19 @@ class UrgentesAPITest(TestCase):
     def test_pide_login(self):
         respuesta = self.client.get("/api/tickets/urgentes/")
         self.assertEqual(respuesta.status_code, 403)
+
+
+class RedAreasTest(TestCase):
+    def test_red_es_dirigida(self):
+        mesa = Area.objects.create(nombre="Mesa de ayuda")
+        redes = Area.objects.create(nombre="Redes")
+        mesa.deriva_a.add(redes)
+        red = red_de_areas(Area.objects.order_by("nombre"))
+        self.assertEqual(red.vecinos("Mesa de ayuda"), ["Redes"])
+        self.assertEqual(red.vecinos("Redes"), [])
+
+    def test_area_sin_derivaciones(self):
+        Area.objects.create(nombre="Seguridad")
+        red = red_de_areas(Area.objects.order_by("nombre"))
+        self.assertEqual(red.grado("Seguridad"), 0)
+        self.assertEqual(red.grado_entrada("Seguridad"), 0)
