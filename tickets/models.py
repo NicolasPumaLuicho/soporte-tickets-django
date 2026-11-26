@@ -109,3 +109,16 @@ class Categoria(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class Articulo(models.Model):
+    titulo = models.CharField(max_length=120, unique=True, db_index=True)
+    contenido = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "artículo"
+        verbose_name_plural = "artículos"
+        ordering = ["titulo"]
+
+    def __str__(self):
+        return self.titulo

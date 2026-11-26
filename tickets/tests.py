@@ -3,13 +3,15 @@ from django.contrib.messages import get_messages
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 from .asignacion import asignar_siguiente_ticket
+from .busqueda import buscar_articulo
 from .estructuras.arbol_bst import construir_balanceado, a_lista, altura, contar_pasos
+from .estructuras.cola_circular import ColaCircular
 from .estructuras.cola_prioridad import MinHeap, primeros
 from .estructuras.cola_tickets import ColaTickets
 from .estructuras.pila_historial import PilaEstados
 from .estructuras.red import red_de_areas
 from .estados import cambiar_estado, deshacer_ultimo_cambio
-from .models import Area, Ticket
+from .models import Area, Articulo, Ticket
 
 
 class ArbolBalanceadoTest(SimpleTestCase):
@@ -167,3 +169,45 @@ class AsignacionTest(TestCase):
                 "Ticket asignado: TK-232 recuperar contraseña",
             ],
         )
+
+
+class ColaCircularTest(SimpleTestCase):
+    def test_reutiliza_posiciones_libres(self):
+        cola = ColaCircular(3)
+        self.assertTrue(cola.encolar("TK-301"))
+        self.assertTrue(cola.encolar("TK-302"))
+        self.assertTrue(cola.encolar("TK-303"))
+        self.assertFalse(cola.encolar("TK-304"))
+        self.assertEqual(cola.atender(), "TK-301")
+        self.assertTrue(cola.encolar("TK-304"))
+        self.assertEqual(cola.atender(), "TK-302")
+        self.assertEqual(cola.atender(), "TK-303")
+        self.assertEqual(cola.atender(), "TK-304")
+        self.assertIsNone(cola.atender())
+
+
+class BuscarArticuloTest(TestCase):
+    def setUp(self):
+        for titulo in [
+            "Cambiar contraseña",
+            "Conectar impresora",
+            "No llega el correo",
+            "Reiniciar el router",
+            "Restablecer VPN",
+            "Windows no arranca",
+        ]:
+            Articulo.objects.create(titulo=titulo)
+
+    def test_encuentra_y_cuenta_comparaciones(self):
+        articulo, comparaciones = buscar_articulo("Restablecer VPN")
+        self.assertEqual(articulo.titulo, "Restablecer VPN")
+        self.assertEqual(comparaciones, 2)
+
+    def test_no_encontrado(self):
+        articulo, comparaciones = buscar_articulo("Zebra")
+        self.assertIsNone(articulo)
+        self.assertGreater(comparaciones, 0)
+
+    def test_titulo_tiene_indice(self):
+        campo = Articulo._meta.get_field("titulo")
+        self.assertTrue(campo.db_index)
