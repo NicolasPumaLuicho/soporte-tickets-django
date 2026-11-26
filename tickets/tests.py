@@ -1,8 +1,10 @@
 from django.test import SimpleTestCase, TestCase
 from .estructuras.arbol_bst import construir_balanceado, a_lista, altura, contar_pasos
 from .estructuras.cola_prioridad import MinHeap, primeros
+from .estructuras.pila_historial import PilaEstados
 from .estructuras.red import red_de_areas
-from .models import Area
+from .estados import cambiar_estado, deshacer_ultimo_cambio
+from .models import Area, Ticket
 
 
 class ArbolBalanceadoTest(SimpleTestCase):
@@ -89,3 +91,34 @@ class RedAreasTest(TestCase):
         red = red_de_areas(Area.objects.order_by("nombre"))
         self.assertEqual(red.grado("Seguridad"), 0)
         self.assertEqual(red.grado_entrada("Seguridad"), 0)
+
+
+class PilaEstadosTest(SimpleTestCase):
+    def test_desapila_en_orden_inverso(self):
+        pila = PilaEstados()
+        for estado in ["abierto", "en_proceso", "cerrado"]:
+            pila.apilar(estado)
+        self.assertEqual(pila.desapilar(), "cerrado")
+        self.assertEqual(pila.desapilar(), "en_proceso")
+        self.assertEqual(pila.cima(), "abierto")
+
+    def test_pila_vacia(self):
+        pila = PilaEstados()
+        self.assertTrue(pila.esta_vacia())
+        self.assertIsNone(pila.desapilar())
+
+
+class DeshacerEstadoTest(TestCase):
+    def test_deshace_el_ultimo_cambio(self):
+        ticket = Ticket.objects.create(titulo="Impresora sin conexión")
+        cambiar_estado(ticket, "en_proceso")
+        cambiar_estado(ticket, "cerrado")
+        self.assertTrue(deshacer_ultimo_cambio(ticket))
+        self.assertEqual(ticket.estado, "en_proceso")
+        ticket.refresh_from_db()
+        self.assertEqual(ticket.estado, "en_proceso")
+
+    def test_sin_cambios_no_deshace(self):
+        ticket = Ticket.objects.create(titulo="Correo duplicado")
+        self.assertFalse(deshacer_ultimo_cambio(ticket))
+        self.assertEqual(ticket.estado, "abierto")
