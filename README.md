@@ -380,6 +380,41 @@ R: Cada fila guarda una pareja (área de origen, área de destino): el id del
 `to_area_id`. Al recorrer esas filas se arma la matriz: se busca el índice del
 origen (fila) y el del destino (columna) y se coloca el 1.
 
+## Recuperación — Semanas 4 a 6 del proyecto de portafolio
+
+- `tickets/estructuras/pila_historial.py` define `PilaEstados` (`apilar`,
+  `desapilar`, `cima`, `esta_vacia` y `__len__`). `tickets/estados.py` la usa
+  para deshacer: `cambiar_estado()` guarda el estado anterior en la pila del
+  ticket y `deshacer_ultimo_cambio()` lo restaura; si no hay cambios previos,
+  devuelve `False` y no toca el ticket.
+- `tickets/estructuras/cola_tickets.py` define `ColaTickets` (FIFO).
+  `tickets/asignacion.py` encola los tickets abiertos ordenados por `creado` e
+  `id`, y `asignar_siguiente_ticket()` saca el más antiguo y lo pasa a
+  `en_proceso`.
+- La ruta `/asignar-siguiente/` (con `@login_required`) usa esa función y avisa
+  con `django.contrib.messages`. `base.html` muestra los mensajes dentro del
+  `<main>`, por lo que los avisos aparecen en la lista en el mismo orden en que
+  se asignaron los tickets.
+- `tickets/estructuras/cola_circular.py` define `ColaCircular` para los turnos:
+  si está llena rechaza el turno nuevo y, al atender uno, reutiliza esa posición.
+- Modelo `Articulo` con `titulo` único y `db_index=True` (migración
+  `0006_articulo` aplicada). `python manage.py cargar_articulos_s06` carga los
+  6 artículos de prueba.
+- `tickets/busqueda.py` define `buscar_articulo()`: una búsqueda binaria manual
+  sobre los títulos ordenados que cuenta las comparaciones. Con los 6 artículos
+  encuentra «Restablecer VPN» en 2 comparaciones.
+- `tickets/tests.py` pasa de 12 a 24 pruebas con `python manage.py test tickets`.
+
+### Commits de la recuperación
+
+- Semana 4 — pila de estados y deshacer el último cambio: https://github.com/NicolasPumaLuicho/soporte-tickets-django/commit/7033f330184e0ab3e85937b1d35ad134e4524645
+- Semana 5 — cola FIFO de pendientes, vista de asignación y orden de los mensajes: https://github.com/NicolasPumaLuicho/soporte-tickets-django/commit/e74f392a1fbb308fdf77f44ff2359a430f9bd576
+- Semana 6 — cola circular de turnos, catálogo de artículos y búsqueda binaria: https://github.com/NicolasPumaLuicho/soporte-tickets-django/commit/9187de67bf6667c8e997d82883763ef893a5b6bc
+
+Repositorio: https://github.com/NicolasPumaLuicho/soporte-tickets-django
+
+---
+
 ## Integrantes
 
 - Nicolás Puma Luicho
