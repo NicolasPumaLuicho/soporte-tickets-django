@@ -79,6 +79,16 @@
         th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #e3e9ee; }
         th { font-size: 13px; text-transform: uppercase; color: #62717e; }
         td a { color: #004d7a; font-weight: 600; }
+        .mensajes { margin-bottom: 16px; }
+        .mensaje {
+            margin: 6px 0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #e3f2fd;
+            color: #005a9e;
+        }
+        .mensaje.success { background: #e6f4ea; color: #1e7b34; }
     </style>
     {% block estilos %}{% endblock %}
 </head>
@@ -89,6 +99,13 @@
     </header>
     {% include "tickets/_menu_categorias.html" %}
     <main>
+        {% if messages %}
+        <div class="mensajes">
+            {% for message in messages %}
+            <p class="mensaje {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% block contenido %}{% endblock %}
     </main>
 </body>

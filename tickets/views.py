@@ -1,9 +1,11 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView
 
+from .asignacion import asignar_siguiente_ticket
 from .estructuras.red import red_de_areas
 from .historial import historial_de
 from .models import Area, Ticket
@@ -28,6 +30,16 @@ def lista_tickets(request):
         "tickets/lista.html",
         {"tickets": tickets, "es_agente": es_agente},
     )
+
+
+@login_required
+def asignar_siguiente(request):
+    ticket = asignar_siguiente_ticket()
+    if ticket is None:
+        messages.info(request, "No hay tickets pendientes")
+    else:
+        messages.success(request, "Ticket asignado: " + ticket.titulo)
+    return redirect("tickets:lista")
 
 
 class TicketListView(LoginRequiredMixin, ListView):

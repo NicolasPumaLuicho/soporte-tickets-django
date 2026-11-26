@@ -1,6 +1,11 @@
+from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
 from django.test import SimpleTestCase, TestCase
+from django.urls import reverse
+from .asignacion import asignar_siguiente_ticket
 from .estructuras.arbol_bst import construir_balanceado, a_lista, altura, contar_pasos
 from .estructuras.cola_prioridad import MinHeap, primeros
+from .estructuras.cola_tickets import ColaTickets
 from .estructuras.pila_historial import PilaEstados
 from .estructuras.red import red_de_areas
 from .estados import cambiar_estado, deshacer_ultimo_cambio
@@ -122,3 +127,43 @@ class DeshacerEstadoTest(TestCase):
         ticket = Ticket.objects.create(titulo="Correo duplicado")
         self.assertFalse(deshacer_ultimo_cambio(ticket))
         self.assertEqual(ticket.estado, "abierto")
+
+
+class ColaTicketsTest(SimpleTestCase):
+    def test_sale_el_primero_que_llego(self):
+        cola = ColaTickets()
+        for codigo in ["TK-231", "TK-232", "TK-233"]:
+            cola.encolar(codigo)
+        self.assertEqual(cola.dequeue(), "TK-231")
+        self.assertEqual(cola.dequeue(), "TK-232")
+        self.assertEqual(len(cola), 1)
+
+    def test_cola_vacia(self):
+        self.assertIsNone(ColaTickets().dequeue())
+
+
+class AsignacionTest(TestCase):
+    def test_asigna_el_ticket_mas_antiguo(self):
+        primero = Ticket.objects.create(titulo="TK-231 impresora sin conexión")
+        segundo = Ticket.objects.create(titulo="TK-232 recuperar contraseña")
+        asignado = asignar_siguiente_ticket()
+        self.assertEqual(asignado.pk, primero.pk)
+        asignado.refresh_from_db()
+        self.assertEqual(asignado.estado, "en_proceso")
+        self.assertEqual(Ticket.objects.get(pk=segundo.pk).estado, "abierto")
+
+    def test_orden_de_los_mensajes(self):
+        user = User.objects.create_user("agente_fifo", password="clave1234")
+        self.client.force_login(user)
+        Ticket.objects.create(titulo="TK-231 impresora sin conexión")
+        Ticket.objects.create(titulo="TK-232 recuperar contraseña")
+        self.client.get(reverse("tickets:asignar_siguiente"))
+        respuesta = self.client.get(reverse("tickets:asignar_siguiente"))
+        textos = [str(mensaje) for mensaje in get_messages(respuesta.wsgi_request)]
+        self.assertEqual(
+            textos,
+            [
+                "Ticket asignado: TK-231 impresora sin conexión",
+                "Ticket asignado: TK-232 recuperar contraseña",
+            ],
+        )
