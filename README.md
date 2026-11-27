@@ -298,6 +298,16 @@ R: La lista muestra una página HTML para que la vea una persona y tiene sus
 enlaces y botones. La API no muestra esa página: devuelve solamente los tickets
 urgentes en JSON, ya ordenados por el heap, para que los use otro programa.
 
+## Semana 14 — Ranking de agentes con heap sort y tablero con Bootstrap
+
+- `Ticket` tiene el campo `resuelto_por` (FK al usuario, `related_name="tickets_resueltos"`), con su migración `0007_ticket_resuelto_por`. En el admin se ven y filtran los tickets cerrados por agente.
+- `tickets/estructuras/ranking.py` contiene `MaxHeap` (`_hundir`, `extraer_maximo`, `construir`), `heap_sort` y `ranking_agentes(agentes)`: arma parejas `(cantidad, username)`, las ordena con el heap y devuelve diccionarios `{"puesto", "agente", "resueltos"}`.
+- El ranking con heap sort se ordena en Python; la comparación con el ORM usa `annotate(resueltos=Count("tickets_resueltos"))` y `order_by("-resueltos", "-username")`, que ordena en la base de datos. Ambos dan el mismo orden, incluso en el empate: con 3 tickets resueltos, `luis` sale antes que `beto`.
+- La vista `tablero` (`@login_required`) está en `soporte/urls.py` como `/tablero/` y usa `tickets/tablero.html` con Bootstrap (CDN en `base.html`): tabla `table table-striped` y cada cantidad en un `badge`.
+- `tickets/tests.py` suma `RankingTest`: compara `heap_sort` con `sorted(..., reverse=True)` y `test_tablero_pide_login` comprueba que sin sesión `/tablero/` responde 302. En total pasan 26 pruebas.
+- Respuestas del README: (a) el ranking se ordena en Python con `heap_sort` y la comparación con `order_by` se ordena en la base de datos; (b) `-username` desempata igual que el heap, dejando primero el nombre que va después en el alfabeto.
+- Commit: https://github.com/NicolasPumaLuicho/soporte-tickets-django/commit/fd0a94e62475a616e133e5ab5ca0bdf7731de50f
+
 ## Semana 15 — Red de derivación entre áreas
 
 - Modelo `Area` con `nombre` único y `deriva_a`, un
