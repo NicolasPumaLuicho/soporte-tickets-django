@@ -51,6 +51,13 @@ class Ticket(models.Model):
         on_delete=models.SET_NULL,
         related_name="tickets",
     )
+    resuelto_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="tickets_resueltos",
+    )
 
     class Meta:
         verbose_name = "ticket"

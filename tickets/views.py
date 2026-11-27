@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -6,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView
 
 from .asignacion import asignar_siguiente_ticket
+from .estructuras.ranking import ranking_agentes
 from .estructuras.red import red_de_areas
 from .historial import historial_de
 from .models import Area, Ticket
@@ -94,3 +96,10 @@ def red_areas(request):
         "tickets/red_areas.html",
         {"nombres": red.nombres, "filas": filas},
     )
+
+
+@login_required
+def tablero(request):
+    agentes = User.objects.filter(groups__name="Agente")
+    ranking = ranking_agentes(agentes)
+    return render(request, "tickets/tablero.html", {"ranking": ranking})

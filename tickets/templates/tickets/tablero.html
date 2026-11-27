@@ -1,0 +1,16 @@
+{% extends "tickets/base.html" %}
+{% block contenido %}
+<div class="container mt-4">
+    <h2>Ranking de agentes</h2>
+    <table class="table table-striped">
+        <tr><th>Puesto</th><th>Agente</th><th>Resueltos</th></tr>
+        {% for fila in ranking %}
+        <tr>
+            <td>{{ fila.puesto }}</td>
+            <td>{{ fila.agente }}</td>
+            <td><span class="badge bg-primary">{{ fila.resueltos }}</span></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

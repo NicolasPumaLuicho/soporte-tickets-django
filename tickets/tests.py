@@ -8,6 +8,7 @@ from .estructuras.arbol_bst import construir_balanceado, a_lista, altura, contar
 from .estructuras.cola_circular import ColaCircular
 from .estructuras.cola_prioridad import MinHeap, primeros
 from .estructuras.cola_tickets import ColaTickets
+from .estructuras.ranking import heap_sort
 from .estructuras.pila_historial import PilaEstados
 from .estructuras.red import red_de_areas
 from .estados import cambiar_estado, deshacer_ultimo_cambio
@@ -211,3 +212,13 @@ class BuscarArticuloTest(TestCase):
     def test_titulo_tiene_indice(self):
         campo = Articulo._meta.get_field("titulo")
         self.assertTrue(campo.db_index)
+
+
+class RankingTest(TestCase):
+    def test_igual_que_sorted(self):
+        datos = [(3, "ana"), (7, "luis"), (1, "rosa"), (7, "beto")]
+        self.assertEqual(heap_sort(datos), sorted(datos, reverse=True))
+
+    def test_tablero_pide_login(self):
+        respuesta = self.client.get("/tablero/")
+        self.assertEqual(respuesta.status_code, 302)

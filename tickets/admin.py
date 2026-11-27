@@ -10,8 +10,8 @@ class ComentarioInline(admin.TabularInline):
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ("titulo", "estado", "impacto", "categoria", "creado_por", "fecha")
-    list_filter = ("estado", "impacto", "categoria")
+    list_display = ("titulo", "estado", "impacto", "categoria", "creado_por", "resuelto_por", "fecha")
+    list_filter = ("estado", "impacto", "categoria", "resuelto_por")
     inlines = [ComentarioInline]
 
 
